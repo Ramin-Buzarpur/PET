@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# پت‌لند — فروشگاه و آموزشگاه آنلاین حیوانات خانگی
 
-## Getting Started
+پروژه‌ای فول‌استک با Next.js 16 (App Router) + TypeScript + Tailwind + Prisma/PostgreSQL، شامل:
 
-First, run the development server:
+- فروشگاه محصولات (دسته‌بندی، سبد خرید، پرداخت با زرین‌پال sandbox)
+- آموزشگاه آنلاین: پکیج‌های آموزشی به تفکیک نوع حیوان، چپترهای متن + صدا + ویدیو، enrollment بعد از خرید موفق
+- چت هوشمند با RAG سبک (جستجوی متنی Postgres روی چپترها و FAQ) + استریم پاسخ از Anthropic/OpenAI
+- احراز هویت (ثبت‌نام/ورود) با Auth.js
+- پنل مدیریت (`/admin`) برای CRUD محصولات، پکیج‌ها/چپترها و مشاهده سفارش‌ها/پیام‌ها
+
+## راه‌اندازی اولیه
+
+1. دیتابیس Postgres را بالا بیاور (کانتینر Docker از قبل با دستور زیر ساخته شده؛ در دفعات بعد فقط `docker start` کافی است):
+
+```bash
+docker run -d --name pet_shop_postgres \
+  -e POSTGRES_USER=pet_shop -e POSTGRES_PASSWORD=pet_shop -e POSTGRES_DB=pet_shop \
+  -p 5432:5432 -v pet_shop_pgdata:/var/lib/postgresql/data \
+  public.ecr.aws/docker/library/postgres:16-alpine
+```
+
+اگر کانتینر از قبل ساخته شده (معمولاً هست)، کافی است:
+
+```bash
+docker start pet_shop_postgres
+```
+
+2. نصب پکیج‌ها (اگر قبلاً نصب نشده):
+
+```bash
+npm install
+```
+
+3. اجرای migration و seed (فقط بار اول یا بعد از تغییر schema):
+
+```bash
+npx prisma migrate dev
+npm run db:seed
+```
+
+4. اجرای سرور توسعه:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+سایت روی [http://localhost:3000](http://localhost:3000) بالا می‌آید.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## حساب‌های نمونه (از seed)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- مدیر: `admin@petshop.test` / `Admin@123`
+- کاربر عادی: `user@petshop.test` / `User@123`
 
-## Learn More
+## تنظیم کلید هوش مصنوعی
 
-To learn more about Next.js, take a look at the following resources:
+فایل `.env` را باز کن و یکی از این دو مقدار را پر کن:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+ANTHROPIC_API_KEY="..."
+# یا
+OPENAI_API_KEY="..."
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+تا وقتی خالی باشند، ویجت چت پیام «کلید تنظیم نشده» نشان می‌دهد؛ همین که کلید را بگذاری و سرور را دوباره اجرا کنی، چت فعال می‌شود.
 
-## Deploy on Vercel
+## زرین‌پال
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+درگاه در حالت **sandbox** با merchant عمومی تست پیش‌فرض پیکربندی شده (`ZARINPAL_MERCHANT_ID` در `.env`). برای رفتن به حالت واقعی:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+ZARINPAL_SANDBOX="false"
+ZARINPAL_MERCHANT_ID="<merchant id واقعی خودتان>"
+```
+
+## نکات مهم برای ادامه کار
+
+- `NEXT_PUBLIC_BASE_URL` و `NEXTAUTH_URL` در `.env` باید همیشه با آدرسی که سرور واقعاً رویش اجرا می‌شود یکی باشند (در غیر این صورت ریدایرکت پرداخت/ورود خراب می‌شود).
+- پنل مدیریت (`/admin`) فقط برای کاربر با نقش `ADMIN` باز می‌شود.
+- تصاویر محصولات/پکیج‌ها و فایل‌های صوتی/ویدیویی چپترها فعلاً placeholder هستند؛ از پنل مدیریت می‌توانید آدرس فایل واقعی را جایگزین کنید.
+- پرداخت‌های موفق واقعی فقط وقتی merchant واقعی و HTTPS داشته باشید کار می‌کنند؛ در sandbox می‌توانید مسیر پرداخت را تست کنید اما تکمیل تراکنش به کارت تست نیاز دارد.

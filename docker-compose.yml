@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: public.ecr.aws/docker/library/postgres:16-alpine
+    container_name: pet_shop_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pet_shop
+      POSTGRES_PASSWORD: pet_shop
+      POSTGRES_DB: pet_shop
+    ports:
+      - "5432:5432"
+    volumes:
+      - pet_shop_pgdata:/var/lib/postgresql/data
+
+volumes:
+  pet_shop_pgdata:
