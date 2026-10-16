@@ -56,6 +56,71 @@ enum ChatRole {
   SYSTEM
 }
 
+enum PetSpecies {
+  DOG
+  CAT
+  BIRD
+  FISH
+  REPTILE
+  RODENT
+  OTHER
+}
+
+enum PetGender {
+  MALE
+  FEMALE
+  UNKNOWN
+}
+
+enum CalendarType {
+  JALALI
+  GREGORIAN
+}
+
+enum BirthPrecision {
+  EXACT
+  ESTIMATED
+}
+
+enum MeasurementType {
+  HEIGHT
+  WEIGHT
+}
+
+enum NotificationKind {
+  WELCOME
+  PET_WELCOME
+  BIRTHDAY
+  FIRST_MONTH
+  CARD_NUDGE
+  BIRTHDAY_NUDGE
+  CALENDAR_REMINDER
+  COURSE_DONE
+  COURSE_NUDGE
+}
+
+enum NotificationChannel {
+  PANEL
+  SMS
+}
+
+enum NotificationStatus {
+  QUEUED
+  SENT_MOCK
+  SKIPPED
+}
+
+enum StoryStatus {
+  PUBLISHED
+  HIDDEN
+}
+
+enum ReportStatus {
+  OPEN
+  DISMISSED
+  ACTED
+}
+
 model User {
   id           String   @id @default(cuid())
   name         String
@@ -66,9 +131,20 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  orders       Order[]
-  enrollments  Enrollment[]
-  chatSessions ChatSession[]
+  orders          Order[]
+  enrollments     Enrollment[]
+  chatSessions    ChatSession[]
+  pets            Pet[]
+  calendarTasks   PetCalendarTask[]
+  journalUnlock   JournalUnlockMeta?
+  notifications   NotificationLog[]
+  certificates    Certificate[]
+  stories         PetStory[]
+  storyReports    StoryReport[]
+  chatPetConsents ChatPetConsent[]
+
+  friendlySmsOptIn  Boolean @default(false)
+  marketingSmsOptIn Boolean @default(false)
 }
 
 model AnimalSection {
@@ -212,6 +288,8 @@ model Enrollment {
   coursePackage CoursePackage @relation(fields: [packageId], references: [id])
   progress      Int           @default(0)
   createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  certificate   Certificate?
 
   @@unique([userId, packageId])
 }
@@ -250,4 +328,164 @@ model ContactMessage {
   subject   String
   message   String
   createdAt DateTime @default(now())
+}
+
+model Pet {
+  id              String          @id @default(cuid())
+  userId          String
+  user            User            @relation(fields: [userId], references: [id])
+  name            String?
+  species         PetSpecies?
+  speciesOther    String?
+  breed           String?
+  gender          PetGender       @default(UNKNOWN)
+  birthDateValue  String?
+  birthCalendar   CalendarType?
+  birthPrecision  BirthPrecision?
+  approxAgeYears  Int?
+  approxAgeMonths Int?
+  approxAgeAsOf   DateTime?
+  photoUrl        String?
+  illness         String?
+  allergies       String?
+  medications     String?
+  chatNotes       String?
+  membershipCode  String          @unique @default(cuid())
+  isArchived      Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  measurements   PetMeasurement[]
+  cardShares     PetCardShare[]
+  journalEntries JournalEntry[]
+  calendarTasks  PetCalendarTask[]
+  notifications  NotificationLog[]
+  chatConsents   ChatPetConsent[]
+}
+
+model PetMeasurement {
+  id         String          @id @default(cuid())
+  petId      String
+  pet        Pet             @relation(fields: [petId], references: [id], onDelete: Cascade)
+  type       MeasurementType
+  value      Float
+  unit       String
+  measuredAt DateTime
+
+  @@index([petId, type, measuredAt])
+}
+
+model PetCardShare {
+  id          String   @id @default(cuid())
+  petId       String
+  pet         Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  token       String   @unique @default(cuid())
+  showPhoto   Boolean  @default(false)
+  showSpecies Boolean  @default(false)
+  showBreed   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+}
+
+model JournalEntry {
+  id          String   @id @default(cuid())
+  petId       String
+  pet         Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  titleCipher String?
+  bodyCipher  String
+  iv          String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([petId, createdAt])
+}
+
+model JournalUnlockMeta {
+  userId                 String   @id
+  user                   User     @relation(fields: [userId], references: [id])
+  salt                   String
+  wrappedKeyByPassphrase String
+  wrappedKeyByRecovery   String
+  createdAt              DateTime @default(now())
+}
+
+model PetCalendarTask {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  petId           String?
+  pet             Pet?     @relation(fields: [petId], references: [id])
+  text            String
+  dueAt           DateTime
+  hasTime         Boolean  @default(true)
+  reminderOffsets Int[]
+  createdAt       DateTime @default(now())
+
+  @@index([userId, dueAt])
+}
+
+model NotificationLog {
+  id        String              @id @default(cuid())
+  userId    String
+  user      User                @relation(fields: [userId], references: [id])
+  petId     String?
+  pet       Pet?                @relation(fields: [petId], references: [id])
+  kind      NotificationKind
+  dedupeKey String              @unique
+  channel   NotificationChannel
+  status    NotificationStatus
+  message   String
+  createdAt DateTime            @default(now())
+}
+
+model Certificate {
+  id              String     @id @default(cuid())
+  userId          String
+  user            User       @relation(fields: [userId], references: [id])
+  enrollmentId    String     @unique
+  enrollment      Enrollment @relation(fields: [enrollmentId], references: [id])
+  participantName String
+  serialNumber    String     @unique @default(cuid())
+  petNameOnCert   String?
+  issuedAt        DateTime   @default(now())
+}
+
+model PetStory {
+  id           String        @id @default(cuid())
+  authorUserId String
+  author       User          @relation(fields: [authorUserId], references: [id])
+  title        String?
+  body         String
+  status       StoryStatus   @default(PUBLISHED)
+  createdAt    DateTime      @default(now())
+  reports      StoryReport[]
+
+  @@index([status, createdAt])
+}
+
+model StoryReport {
+  id             String       @id @default(cuid())
+  storyId        String
+  story          PetStory     @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  reporterUserId String
+  reporter       User         @relation(fields: [reporterUserId], references: [id])
+  reason         String
+  note           String?
+  status         ReportStatus @default(OPEN)
+  createdAt      DateTime     @default(now())
+
+  @@unique([storyId, reporterUserId])
+}
+
+model ChatPetConsent {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  petId          String
+  pet            Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  consentVersion Int      @default(1)
+  consentedAt    DateTime @default(now())
+
+  @@unique([userId, petId])
 }

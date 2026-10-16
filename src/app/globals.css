@@ -266,6 +266,22 @@ body {
   box-shadow: 0 16px 32px -12px color-mix(in srgb, var(--primary) 35%, transparent);
 }
 
+/* --- SpotlightCard (الهام از React Bits) --- */
+.spotlight-card {
+  --spot-x: 50%;
+  --spot-y: 50%;
+  --spot-opacity: 0;
+}
+
+.spotlight-card-glow {
+  background: radial-gradient(
+    260px circle at var(--spot-x) var(--spot-y),
+    color-mix(in srgb, var(--primary) 28%, transparent),
+    transparent 70%
+  );
+  opacity: var(--spot-opacity);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-float-slow,
   .animate-float-side,

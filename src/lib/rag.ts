@@ -38,12 +38,19 @@ export async function retrieveContext(query: string): Promise<RetrievedContext[]
   return results;
 }
 
-export function buildSystemPrompt(context: RetrievedContext[]): string {
-  const base =
+export function buildSystemPrompt(context: RetrievedContext[], petContext?: string | null): string {
+  let base =
     "تو دستیار هوشمند فروشگاه و آموزشگاه آنلاین حیوانات خانگی «پت‌لند» هستی. " +
     "به زبان فارسی، دوستانه و مفید پاسخ بده. در مورد مراقبت، تغذیه، رفتار و سلامت حیوانات خانگی راهنمایی کن. " +
     "اگر سؤال پزشکی جدی یا اورژانسی بود، حتماً توصیه کن که در اسرع وقت به دامپزشک مراجعه کنند. " +
     "پاسخ‌ها را کوتاه، شفاف و کاربردی نگه دار.";
+
+  if (petContext) {
+    base +=
+      "\n\nکاربر اجازه داده مشخصات زیر از کارت پت او برایت ارسال شود؛ این‌ها حرف صاحب پت است، نه تشخیص قطعی. " +
+      "با لحن دوستانه و با در نظر گرفتن این اطلاعات پاسخ بده و در صورت نیاز سؤال تکمیلی بپرس:\n\n" +
+      petContext;
+  }
 
   if (context.length === 0) return base;
 

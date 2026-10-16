@@ -95,6 +95,33 @@ export function HomeHeartIcon({ className }: IconProps) {
   );
 }
 
+export function HamsterIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" className={className} aria-hidden>
+      <circle cx="24" cy="27" r="14" fill="currentColor" />
+      <circle cx="13" cy="15" r="5" fill="currentColor" />
+      <circle cx="35" cy="15" r="5" fill="currentColor" />
+      <circle cx="13" cy="15" r="2.2" fill="var(--color-surface)" />
+      <circle cx="35" cy="15" r="2.2" fill="var(--color-surface)" />
+      <circle cx="18" cy="25" r="1.6" fill="var(--color-surface)" />
+      <circle cx="30" cy="25" r="1.6" fill="var(--color-surface)" />
+      <ellipse cx="24" cy="31" rx="4.5" ry="3" fill="var(--color-surface)" />
+    </svg>
+  );
+}
+
+export function PawIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" className={className} aria-hidden>
+      <ellipse cx="24" cy="31" rx="12" ry="9" fill="currentColor" />
+      <circle cx="10" cy="19" r="5" fill="currentColor" />
+      <circle cx="22" cy="12" r="5.5" fill="currentColor" />
+      <circle cx="34" cy="12" r="5.5" fill="currentColor" />
+      <circle cx="40" cy="22" r="4.5" fill="currentColor" />
+    </svg>
+  );
+}
+
 export const SECTION_ICONS: Record<string, (props: IconProps) => React.JSX.Element> = {
   cats: CatIcon,
   dogs: DogIcon,

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/providers/CartProvider";
 import { formatToman } from "@/lib/format";
+import { MagneticButton } from "@/components/effects/MagneticButton";
 
 type Variant = {
   id: string;
@@ -149,18 +150,22 @@ export function AddToCartButton({
 
           {selectedVariant.stock > 0 ? (
             <div className="flex gap-3">
-              <button
-                onClick={() => handleAdd(false)}
-                className="flex-1 rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
-              >
-                {added ? "به سبد افزوده شد ✓" : "افزودن به سبد خرید"}
-              </button>
-              <button
-                onClick={() => handleAdd(true)}
-                className="rounded-full border border-border bg-surface px-4 py-3 text-sm font-medium hover:border-primary"
-              >
-                خرید سریع
-              </button>
+              <MagneticButton className="block flex-1">
+                <button
+                  onClick={() => handleAdd(false)}
+                  className="w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
+                >
+                  {added ? "به سبد افزوده شد ✓" : "افزودن به سبد خرید"}
+                </button>
+              </MagneticButton>
+              <MagneticButton>
+                <button
+                  onClick={() => handleAdd(true)}
+                  className="rounded-full border border-border bg-surface px-4 py-3 text-sm font-medium hover:border-primary"
+                >
+                  خرید سریع
+                </button>
+              </MagneticButton>
             </div>
           ) : (
             <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">

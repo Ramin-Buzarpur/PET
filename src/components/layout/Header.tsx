@@ -13,6 +13,7 @@ type HelperSection = Awaited<ReturnType<typeof getHelperSection>>;
 const simpleLinks = [
   { href: "/courses", label: "آموزش‌ها" },
   { href: "/chat", label: "چت هوشمند" },
+  { href: "/stories", label: "داستان‌های پت" },
   { href: "/about", label: "درباره ما" },
   { href: "/contact", label: "تماس با ما" },
 ];

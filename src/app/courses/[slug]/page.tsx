@@ -4,6 +4,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatToman } from "@/lib/format";
 import { BuyCourseButton } from "@/components/courses/BuyCourseButton";
+import { CertificateSection } from "@/components/courses/CertificateSection";
+import { Reveal } from "@/components/effects/Reveal";
 
 export default async function CourseDetailPage({
   params,
@@ -26,15 +28,30 @@ export default async function CourseDetailPage({
       })
     : null;
 
+  const pets = session?.user
+    ? await prisma.pet.findMany({
+        where: { userId: session.user.id, isArchived: false },
+        select: { id: true, name: true },
+      })
+    : [];
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <div className="mb-8 overflow-hidden rounded-2xl bg-surface-muted">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={pkg.coverImage ?? ""} alt={pkg.title} className="h-64 w-full object-cover" />
-      </div>
+      <Reveal y={16} scale={0.98}>
+        <div className="mb-8 overflow-hidden rounded-2xl bg-surface-muted">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={pkg.coverImage ?? ""} alt={pkg.title} className="h-64 w-full object-cover" />
+        </div>
+      </Reveal>
 
-      <h1 className="mb-3 text-2xl font-bold">{pkg.title}</h1>
-      <p className="mb-6 leading-7 text-foreground/90">{pkg.description}</p>
+      <Reveal delay={0.15}>
+        <h1 className="mb-3 text-2xl font-bold">{pkg.title}</h1>
+        <p className="mb-6 leading-7 text-foreground/90">{pkg.description}</p>
+      </Reveal>
+
+      {enrollment?.progress === 100 && (
+        <CertificateSection enrollmentId={enrollment.id} courseTitle={pkg.title} pets={pets} />
+      )}
 
       <div className="mb-8 rounded-2xl border border-border bg-surface p-5">
         {enrollment ? (
@@ -76,12 +93,14 @@ export default async function CourseDetailPage({
             </div>
           );
 
-          return unlocked ? (
-            <Link key={chapter.id} href={`/courses/${pkg.slug}/learn/${chapter.id}`}>
-              {content}
-            </Link>
-          ) : (
-            <div key={chapter.id}>{content}</div>
+          return (
+            <Reveal key={chapter.id} index={idx} y={10}>
+              {unlocked ? (
+                <Link href={`/courses/${pkg.slug}/learn/${chapter.id}`}>{content}</Link>
+              ) : (
+                <div>{content}</div>
+              )}
+            </Reveal>
           );
         })}
       </div>

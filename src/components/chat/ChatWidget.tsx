@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
+import { PetChatSelector } from "@/components/chat/PetChatSelector";
 
 type Message = { role: "user" | "assistant"; content: string };
 
@@ -15,11 +16,27 @@ export function ChatWidget() {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [petId, setPetId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, open]);
+
+  function handlePetChange(newPetId: string | null) {
+    if (newPetId !== petId) {
+      // گفت‌وگوی تازه تا مشخصات پت قبلی به مدل برنگردد
+      setMessages([
+        {
+          role: "assistant",
+          content: newPetId
+            ? "باشه، از این به بعد با توجه به مشخصات همین پت کمکت می‌کنم 🐾"
+            : "سلام! من دستیار هوشمند پت‌لند هستم 🐾 هر سؤالی داری بپرس.",
+        },
+      ]);
+    }
+    setPetId(newPetId);
+  }
 
   async function sendMessage() {
     const text = input.trim();
@@ -34,7 +51,7 @@ export function ChatWidget() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: nextMessages }),
+        body: JSON.stringify({ messages: nextMessages, petId: petId ?? undefined }),
       });
 
       if (!res.ok || !res.body) {
@@ -85,11 +102,13 @@ export function ChatWidget() {
       </button>
 
       {open && (
-        <div className="fixed bottom-24 left-5 z-50 flex h-[28rem] w-80 flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl">
+        <div className="fixed bottom-24 left-5 z-50 flex h-[32rem] w-80 flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl">
           <div className="flex items-center gap-2 border-b border-border bg-primary px-4 py-3 text-primary-foreground">
             <span className="text-xl">🐾</span>
             <span className="font-semibold">دستیار هوشمند پت‌لند</span>
           </div>
+
+          <PetChatSelector onPetChange={handlePetChange} />
 
           <div className="flex-1 space-y-3 overflow-y-auto px-3 py-3">
             {messages.map((m, i) => (

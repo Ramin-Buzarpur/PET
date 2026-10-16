@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
+import { PetChatSelector } from "@/components/chat/PetChatSelector";
 
 type Message = { role: "user" | "assistant"; content: string };
 
@@ -14,11 +15,26 @@ export default function ChatPage() {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [petId, setPetId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  function handlePetChange(newPetId: string | null) {
+    if (newPetId !== petId) {
+      setMessages([
+        {
+          role: "assistant",
+          content: newPetId
+            ? "باشه، از این به بعد با توجه به مشخصات همین پت کمکت می‌کنم 🐾"
+            : "سلام! من دستیار هوشمند پت‌لند هستم 🐾 هر سؤالی داری بپرس.",
+        },
+      ]);
+    }
+    setPetId(newPetId);
+  }
 
   async function sendMessage() {
     const text = input.trim();
@@ -33,7 +49,7 @@ export default function ChatPage() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: nextMessages }),
+        body: JSON.stringify({ messages: nextMessages, petId: petId ?? undefined }),
       });
 
       if (!res.ok || !res.body) {
@@ -74,7 +90,9 @@ export default function ChatPage() {
     <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-3xl flex-col px-4 py-6">
       <h1 className="mb-4 text-xl font-bold">چت با دستیار هوشمند پت‌لند 🐾</h1>
 
-      <div className="flex-1 space-y-3 overflow-y-auto rounded-2xl border border-border bg-surface p-4">
+      <PetChatSelector onPetChange={handlePetChange} />
+
+      <div className="mt-3 flex-1 space-y-3 overflow-y-auto rounded-2xl border border-border bg-surface p-4">
         {messages.map((m, i) => (
           <div
             key={i}

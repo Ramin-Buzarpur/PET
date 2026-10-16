@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getChatModel, NO_API_KEY_MESSAGE } from "@/lib/ai";
 import { retrieveContext, buildSystemPrompt } from "@/lib/rag";
+import { buildPetContext } from "@/lib/pet-chat-context";
 
 const messageSchema = z.object({
   role: z.enum(["user", "assistant"]),
@@ -12,6 +13,7 @@ const messageSchema = z.object({
 
 const bodySchema = z.object({
   messages: z.array(messageSchema).min(1),
+  petId: z.string().optional(),
 });
 
 export async function POST(request: Request) {
@@ -22,7 +24,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "پیام نامعتبر است" }, { status: 400 });
   }
 
-  const { messages } = parsed.data;
+  const { messages, petId } = parsed.data;
   const model = getChatModel();
 
   if (!model) {
@@ -31,7 +33,19 @@ export async function POST(request: Request) {
 
   const lastUserMessage = [...messages].reverse().find((m) => m.role === "user");
   const context = await retrieveContext(lastUserMessage?.content ?? "");
-  const system = buildSystemPrompt(context);
+  let petContext: string | null = null;
+
+  // اطلاعات پت فقط با وجود اجازهٔ ثبت‌شده در سرور ارسال می‌شود؛ اعتماد به کلاینت کافی نیست.
+  if (petId && session?.user) {
+    const consent = await prisma.chatPetConsent.findUnique({
+      where: { userId_petId: { userId: session.user.id, petId } },
+    });
+    if (consent) {
+      petContext = await buildPetContext(petId, session.user.id);
+    }
+  }
+
+  const system = buildSystemPrompt(context, petContext);
 
   if (session?.user) {
     const chatSession = await prisma.chatSession.create({

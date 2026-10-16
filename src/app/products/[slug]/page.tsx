@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { AddToCartButton } from "@/components/shop/AddToCartButton";
+import { Reveal } from "@/components/effects/Reveal";
 
 const ageLabel: Record<string, string> = { BABY: "بچه/توله", ADULT: "بالغ", SENIOR: "مسن" };
 const dogSizeLabel: Record<string, string> = { SMALL: "کوچک", MEDIUM: "متوسط", LARGE: "بزرگ" };
@@ -47,25 +48,29 @@ export default async function ProductDetailPage({
       </div>
 
       <div className="grid gap-8 md:grid-cols-2">
-        <div className="aspect-square overflow-hidden rounded-2xl bg-surface-muted">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={product.images[0]}
-            alt={product.title}
-            className="h-full w-full object-cover"
-          />
-        </div>
+        <Reveal y={16} scale={0.98}>
+          <div className="aspect-square overflow-hidden rounded-2xl bg-surface-muted">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={product.images[0]}
+              alt={product.title}
+              className="h-full w-full object-cover"
+            />
+          </div>
+        </Reveal>
 
-        <div>
-          <h1 className="mb-5 text-2xl font-bold">{product.title}</h1>
-          <p className="mb-6 leading-7 text-foreground/90">{product.description}</p>
+        <Reveal delay={0.15}>
+          <div>
+            <h1 className="mb-5 text-2xl font-bold">{product.title}</h1>
+            <p className="mb-6 leading-7 text-foreground/90">{product.description}</p>
 
-          <AddToCartButton
-            productTitle={product.title}
-            image={product.images[0]}
-            variants={product.variants}
-          />
-        </div>
+            <AddToCartButton
+              productTitle={product.title}
+              image={product.images[0]}
+              variants={product.variants}
+            />
+          </div>
+        </Reveal>
       </div>
 
       {specs.length > 0 && (

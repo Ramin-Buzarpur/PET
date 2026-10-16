@@ -3,6 +3,7 @@ import { Vazirmatn } from "next/font/google";
 import "./globals.css";
 import { AuthSessionProvider } from "@/components/providers/AuthSessionProvider";
 import { CartProvider } from "@/components/providers/CartProvider";
+import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ChatWidget } from "@/components/chat/ChatWidget";
@@ -28,11 +29,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <AuthSessionProvider>
           <CartProvider>
-            <Header sections={sections} helperSection={helperSection} />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <ChatWidget />
-            <PawCursorTrail />
+            <SmoothScrollProvider>
+              <Header sections={sections} helperSection={helperSection} />
+              <main className="flex-1">{children}</main>
+              <Footer />
+              <ChatWidget />
+              <PawCursorTrail />
+            </SmoothScrollProvider>
           </CartProvider>
         </AuthSessionProvider>
       </body>

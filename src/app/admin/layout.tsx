@@ -7,6 +7,7 @@ const links = [
   { href: "/admin/courses", label: "پکیج‌های آموزشی" },
   { href: "/admin/orders", label: "سفارش‌ها" },
   { href: "/admin/messages", label: "پیام‌های تماس" },
+  { href: "/admin/stories", label: "داستان‌های پت" },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

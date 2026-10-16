@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { MagneticButton } from "@/components/effects/MagneticButton";
 
 export function BuyCourseButton({ packageId }: { packageId: string }) {
   const { status } = useSession();
@@ -36,13 +37,15 @@ export function BuyCourseButton({ packageId }: { packageId: string }) {
 
   return (
     <div>
-      <button
-        onClick={handleBuy}
-        disabled={loading}
-        className="w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
-      >
-        {loading ? "در حال اتصال به درگاه..." : "خرید پکیج آموزشی"}
-      </button>
+      <MagneticButton className="block w-full">
+        <button
+          onClick={handleBuy}
+          disabled={loading}
+          className="w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+        >
+          {loading ? "در حال اتصال به درگاه..." : "خرید پکیج آموزشی"}
+        </button>
+      </MagneticButton>
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
     </div>
   );
