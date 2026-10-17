@@ -3,11 +3,14 @@ import { Vazirmatn } from "next/font/google";
 import "./globals.css";
 import { AuthSessionProvider } from "@/components/providers/AuthSessionProvider";
 import { CartProvider } from "@/components/providers/CartProvider";
+import { AnimalPickerProvider } from "@/components/providers/AnimalPickerProvider";
 import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ChatWidget } from "@/components/chat/ChatWidget";
 import { PawCursorTrail } from "@/components/home/PawCursorTrail";
+import { CompanionProvider } from "@/components/companions/CompanionProvider";
+import { CompanionWidget } from "@/components/companions/CompanionWidget";
 import { getNavSections, getHelperSection } from "@/lib/catalog";
 
 const vazirmatn = Vazirmatn({
@@ -29,13 +32,18 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <AuthSessionProvider>
           <CartProvider>
-            <SmoothScrollProvider>
-              <Header sections={sections} helperSection={helperSection} />
-              <main className="flex-1">{children}</main>
-              <Footer />
-              <ChatWidget />
-              <PawCursorTrail />
-            </SmoothScrollProvider>
+            <AnimalPickerProvider>
+              <CompanionProvider>
+                <SmoothScrollProvider>
+                  <Header sections={sections} helperSection={helperSection} />
+                  <main className="flex-1">{children}</main>
+                  <Footer />
+                  <ChatWidget />
+                  <PawCursorTrail />
+                  <CompanionWidget />
+                </SmoothScrollProvider>
+              </CompanionProvider>
+            </AnimalPickerProvider>
           </CartProvider>
         </AuthSessionProvider>
       </body>
