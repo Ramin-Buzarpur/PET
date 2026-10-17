@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CurrentYear } from "@/components/layout/CurrentYear";
 import { WaveDivider } from "@/components/home/WaveDivider";
 import { Reveal } from "@/components/effects/Reveal";
+import { FieldNoteBadge } from "@/components/home/FieldNoteBadge";
 
 const quickLinks = [
   { href: "/products", label: "همه محصولات" },
@@ -26,13 +27,13 @@ export function Footer() {
       <WaveDivider />
 
       <div className="bg-surface-muted">
-        <div className="mx-auto grid max-w-6xl gap-3 px-4 pb-8 sm:grid-cols-3">
+        <div className="mx-auto flex max-w-6xl flex-wrap justify-center gap-3 px-4 pb-8">
           {badges.map((badge, i) => (
             <Reveal key={badge.label} index={i} y={14}>
-              <div className="flex items-center gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-sm">
-                <span className="text-xl">{badge.emoji}</span>
+              <FieldNoteBadge rotate={`${i % 2 === 0 ? -2 : 2}deg`} className="px-3.5 py-2 text-sm">
+                <span className="text-base">{badge.emoji}</span>
                 {badge.label}
-              </div>
+              </FieldNoteBadge>
             </Reveal>
           ))}
         </div>

@@ -1,6 +1,7 @@
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 
-export async function getNavSections() {
+export const getNavSections = cache(async () => {
   const sections = await prisma.animalSection.findMany({
     where: { isHelper: false },
     orderBy: { order: "asc" },
@@ -13,9 +14,9 @@ export async function getNavSections() {
     },
   });
   return sections.filter((section) => section.categories.length > 0);
-}
+});
 
-export async function getHelperSection() {
+export const getHelperSection = cache(async () => {
   const section = await prisma.animalSection.findFirst({
     where: { isHelper: true },
     include: {
@@ -28,7 +29,7 @@ export async function getHelperSection() {
   });
   if (!section || section.categories.length === 0) return null;
   return section;
-}
+});
 
 export type NavSection = Awaited<ReturnType<typeof getNavSections>>[number];
 

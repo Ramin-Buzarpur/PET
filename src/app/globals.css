@@ -266,6 +266,26 @@ body {
   box-shadow: 0 16px 32px -12px color-mix(in srgb, var(--primary) 35%, transparent);
 }
 
+/* --- Marquee (نوار متن بی‌نهایت) --- */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 24s linear infinite;
+}
+
+/* --- بج یادداشت میدانی --- */
+.field-note-badge {
+  transform: rotate(var(--note-rotate, -3deg));
+  box-shadow: 0 3px 0 0 color-mix(in srgb, var(--foreground) 10%, transparent);
+}
+
 /* --- SpotlightCard (الهام از React Bits) --- */
 .spotlight-card {
   --spot-x: 50%;
@@ -290,6 +310,7 @@ body {
   .animate-blink,
   .animate-bounce-tap,
   .animate-paw-fade,
+  .animate-marquee,
   .fade-up {
     animation: none !important;
   }

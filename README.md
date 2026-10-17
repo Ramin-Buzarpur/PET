@@ -1,16 +1,35 @@
-# پت‌لند — فروشگاه و آموزشگاه آنلاین حیوانات خانگی
+# PetLand — Pet Shop, Courses & AI Assistant
 
-پروژه‌ای فول‌استک با Next.js 16 (App Router) + TypeScript + Tailwind + Prisma/PostgreSQL، شامل:
+A full-stack pet-care platform built with Next.js 16 (App Router), TypeScript, Tailwind CSS v4, and Prisma/PostgreSQL. Persian-language (RTL) interface.
 
-- فروشگاه محصولات (دسته‌بندی، سبد خرید، پرداخت با زرین‌پال sandbox)
-- آموزشگاه آنلاین: پکیج‌های آموزشی به تفکیک نوع حیوان، چپترهای متن + صدا + ویدیو، enrollment بعد از خرید موفق
-- چت هوشمند با RAG سبک (جستجوی متنی Postgres روی چپترها و FAQ) + استریم پاسخ از Anthropic/OpenAI
-- احراز هویت (ثبت‌نام/ورود) با Auth.js
-- پنل مدیریت (`/admin`) برای CRUD محصولات، پکیج‌ها/چپترها و مشاهده سفارش‌ها/پیام‌ها
+## Features
 
-## راه‌اندازی اولیه
+**Shop & courses**
+- Product catalog browsable by animal → category → filters, cart, Zarinpal sandbox checkout
+- Course packages with text/audio/video chapters and progress-based enrollment
+- AI assistant chat with lightweight RAG (Postgres full-text search over chapters/FAQ) streaming from Anthropic or OpenAI
+- Email/password auth (Auth.js) and an admin panel (`/admin`) for products, courses, orders and messages
 
-1. دیتابیس Postgres را بالا بیاور (کانتینر Docker از قبل با دستور زیر ساخته شده؛ در دفعات بعد فقط `docker start` کافی است):
+**Pet family panel** (`/dashboard/pets`)
+- Pet membership cards with a shareable public link
+- Zero-knowledge encrypted private journal (AES-GCM, key never leaves the browser)
+- Care calendar with reminders, idempotent birthday/welcome/anniversary notifications (mock SMS, real infrastructure)
+- Course-completion certificates, pet-aware AI chat with explicit consent, anonymous pet stories with moderation
+
+**Design & interaction**
+- Lenis smooth scrolling + GSAP scroll reveals, spotlight-hover cards and magnetic buttons throughout
+- A persistent animal picker (remembers the visitor's chosen animal across the whole site)
+- A small interactive "companion pets" widget (toggleable, customizable cat/dog mascots that wander, play and react to petting/device shake)
+
+## Getting started
+
+1. Start Postgres (the Docker container is already created; after a reboot just start it again):
+
+```bash
+docker start pet_shop_postgres
+```
+
+   First time only:
 
 ```bash
 docker run -d --name pet_shop_postgres \
@@ -19,62 +38,57 @@ docker run -d --name pet_shop_postgres \
   public.ecr.aws/docker/library/postgres:16-alpine
 ```
 
-اگر کانتینر از قبل ساخته شده (معمولاً هست)، کافی است:
-
-```bash
-docker start pet_shop_postgres
-```
-
-2. نصب پکیج‌ها (اگر قبلاً نصب نشده):
+2. Install dependencies:
 
 ```bash
 npm install
 ```
 
-3. اجرای migration و seed (فقط بار اول یا بعد از تغییر schema):
+3. Run migrations and seed data (first run, or after a schema change):
 
 ```bash
 npx prisma migrate dev
 npm run db:seed
 ```
 
-4. اجرای سرور توسعه:
+4. Start the dev server:
 
 ```bash
 npm run dev
 ```
 
-سایت روی [http://localhost:3000](http://localhost:3000) بالا می‌آید.
+The site runs at [http://localhost:3000](http://localhost:3000).
 
-## حساب‌های نمونه (از seed)
+## Seeded accounts
 
-- مدیر: `admin@petshop.test` / `Admin@123`
-- کاربر عادی: `user@petshop.test` / `User@123`
+- Admin: `admin@petshop.test` / `Admin@123`
+- Regular user: `user@petshop.test` / `User@123`
 
-## تنظیم کلید هوش مصنوعی
+## Enabling the AI chat
 
-فایل `.env` را باز کن و یکی از این دو مقدار را پر کن:
+Set one of these in `.env`:
 
 ```
 ANTHROPIC_API_KEY="..."
-# یا
+# or
 OPENAI_API_KEY="..."
 ```
 
-تا وقتی خالی باشند، ویجت چت پیام «کلید تنظیم نشده» نشان می‌دهد؛ همین که کلید را بگذاری و سرور را دوباره اجرا کنی، چت فعال می‌شود.
+While both are empty, the chat widget shows a "key not configured" message; it activates as soon as a key is set and the server restarts.
 
-## زرین‌پال
+## Zarinpal payments
 
-درگاه در حالت **sandbox** با merchant عمومی تست پیش‌فرض پیکربندی شده (`ZARINPAL_MERCHANT_ID` در `.env`). برای رفتن به حالت واقعی:
+Configured in **sandbox** mode with a public test merchant ID (`ZARINPAL_MERCHANT_ID` in `.env`). For production:
 
 ```
 ZARINPAL_SANDBOX="false"
-ZARINPAL_MERCHANT_ID="<merchant id واقعی خودتان>"
+ZARINPAL_MERCHANT_ID="<your real merchant id>"
 ```
 
-## نکات مهم برای ادامه کار
+## Notes for future work
 
-- `NEXT_PUBLIC_BASE_URL` و `NEXTAUTH_URL` در `.env` باید همیشه با آدرسی که سرور واقعاً رویش اجرا می‌شود یکی باشند (در غیر این صورت ریدایرکت پرداخت/ورود خراب می‌شود).
-- پنل مدیریت (`/admin`) فقط برای کاربر با نقش `ADMIN` باز می‌شود.
-- تصاویر محصولات/پکیج‌ها و فایل‌های صوتی/ویدیویی چپترها فعلاً placeholder هستند؛ از پنل مدیریت می‌توانید آدرس فایل واقعی را جایگزین کنید.
-- پرداخت‌های موفق واقعی فقط وقتی merchant واقعی و HTTPS داشته باشید کار می‌کنند؛ در sandbox می‌توانید مسیر پرداخت را تست کنید اما تکمیل تراکنش به کارت تست نیاز دارد.
+- `NEXT_PUBLIC_BASE_URL` and `NEXTAUTH_URL` in `.env` must always match the actual address the server runs on, or payment/login redirects break.
+- The admin panel (`/admin`) is only reachable by users with the `ADMIN` role.
+- Product/course images and chapter media are placeholders; replace the URLs from the admin panel.
+- Successful real payments require a real merchant ID over HTTPS; sandbox mode only exercises the checkout flow with test cards.
+- The companion pets widget is purely client-side decoration (`localStorage`, no backend) — distinct from the real `Pet` model used in the dashboard.

@@ -6,6 +6,9 @@ import { minVariantPrice, totalStock } from "@/lib/catalog";
 import { CategoryFilters } from "@/components/shop/CategoryFilters";
 import { ActiveFiltersBar } from "@/components/shop/ActiveFiltersBar";
 import { ProductTypeTabs } from "@/components/shop/ProductTypeTabs";
+import { AnimalPickerSync } from "@/components/layout/AnimalPickerBar";
+import { Reveal } from "@/components/effects/Reveal";
+import { SpotlightCard } from "@/components/effects/SpotlightCard";
 
 type SearchParams = Record<string, string | undefined>;
 
@@ -109,6 +112,7 @@ export default async function CategoryListingPage({
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
+      <AnimalPickerSync slug={sectionSlug} name={category.section.name} />
       <div className="mb-6 text-sm text-muted-foreground">
         <Link href={`/${sectionSlug}`} className="hover:text-primary">
           {category.section.name}
@@ -148,30 +152,30 @@ export default async function CategoryListingPage({
             </p>
           ) : (
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {filtered.map((product) => (
-                <Link
-                  key={product.id}
-                  href={`/products/${product.slug}`}
-                  className="hover-lift group overflow-hidden rounded-2xl border border-border bg-surface"
-                >
-                  <div className="aspect-[4/3] overflow-hidden bg-surface-muted">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={product.images[0]}
-                      alt={product.title}
-                      className="h-full w-full object-cover transition group-hover:scale-105"
-                    />
-                  </div>
-                  <div className="p-4">
-                    {product.brand && (
-                      <div className="mb-1 text-xs text-muted-foreground">{product.brand.name}</div>
-                    )}
-                    <h3 className="mb-2 line-clamp-2 text-sm font-medium">{product.title}</h3>
-                    <div className="font-bold text-primary">
-                      {formatToman(minVariantPrice(product.variants))}
-                    </div>
-                  </div>
-                </Link>
+              {filtered.map((product, i) => (
+                <Reveal key={product.id} index={i}>
+                  <SpotlightCard className="overflow-hidden rounded-2xl border border-border bg-surface">
+                    <Link href={`/products/${product.slug}`} className="hover-lift group block">
+                      <div className="aspect-[4/3] overflow-hidden bg-surface-muted">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={product.images[0]}
+                          alt={product.title}
+                          className="h-full w-full object-cover transition group-hover:scale-105"
+                        />
+                      </div>
+                      <div className="p-4">
+                        {product.brand && (
+                          <div className="mb-1 text-xs text-muted-foreground">{product.brand.name}</div>
+                        )}
+                        <h3 className="mb-2 line-clamp-2 text-sm font-medium">{product.title}</h3>
+                        <div className="font-bold text-primary">
+                          {formatToman(minVariantPrice(product.variants))}
+                        </div>
+                      </div>
+                    </Link>
+                  </SpotlightCard>
+                </Reveal>
               ))}
             </div>
           )}
